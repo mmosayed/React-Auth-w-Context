@@ -1,5 +1,7 @@
 import React from 'react';
 import firebase from '../firebase';
+import AuthContext from '../contexts/auth';
+import { Redirect } from 'react-router-dom';
 
 export default class Signup extends React.Component {
 
@@ -30,9 +32,7 @@ export default class Signup extends React.Component {
   render() {
     const { email, password, error } = this.state;
     const displayError = error === '' ? '' : <div className="alert alert-danger" role="alert">{error}</div>
-    
-    return (
-      <>
+    const displayForm = <>
       <h1>Sign Up</h1>
       {displayError}
       <form>
@@ -46,7 +46,20 @@ export default class Signup extends React.Component {
         </div>
         <button type="submit" className="btn btn-primary" onClick={this.handleSubmit}>Sign Up</button>
       </form>
-      </>
+    </>;
+
+    return (
+      <AuthContext.Consumer>
+        {
+          (user) => {
+            if (user) {
+              return <Redirect to='/' />
+            } else {
+              return displayForm;
+            } 
+          }
+        }
+      </AuthContext.Consumer>
     );
   }
 }

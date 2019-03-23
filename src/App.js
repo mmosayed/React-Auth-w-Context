@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
+import firebase from './firebase';
 
 // ---- Pages
 import Header from './components/header';
@@ -9,13 +10,34 @@ import Login from './containers/login';
 import Error404 from './components/error404';
 import Logout from './containers/logout';
 
-
+// ---- Contexts
+import AuthContext from './contexts/auth';
 
 class App extends Component {
+
+  state = {
+    user: null
+  }
+
+  componentDidMount() {
+    this.unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({ user });
+      }
+      else {
+        this.setState({ user: null })
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
+  }
 
   render() {
     return (
       <HashRouter>
+        <AuthContext.Provider value={this.state.user}>
           <Route path='/' component={ Header } />
           <div className='container mt-5'>
             <Switch>
@@ -26,6 +48,7 @@ class App extends Component {
               <Route component={ Error404 } />
             </Switch>
           </div>
+          </AuthContext.Provider>
       </HashRouter>
     );
   }
